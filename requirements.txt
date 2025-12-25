@@ -1,0 +1,10 @@
+streamlit
+pandas
+pymupdf
+numpy
+opencv-python-headless
+pillow
+paddleocr
+paddlepaddle
+openai
+xlsxwriter
