@@ -23,7 +23,8 @@ st.set_page_config(page_title="收據自動化辨識系統", layout="wide")
 # --- 初始化 PaddleOCR (加上 cache 避免重複載入) ---
 @st.cache_resource
 def load_ocr_model():
-    return PaddleOCR(use_angle_cls=True, lang='ch', show_log=False)
+    #PaddleOCR(use_angle_cls=True, lang='ch', show_log=False)
+    return PaddleOCR(lang='ch')
 
 
 
