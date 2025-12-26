@@ -4,7 +4,7 @@ pymupdf
 numpy<2
 opencv-python-headless==4.9.0.80
 pillow
-paddleocr
-paddlepaddle
+paddleocr>=2.7.0
+paddlepaddle==2.6.1
 openai
 xlsxwriter
