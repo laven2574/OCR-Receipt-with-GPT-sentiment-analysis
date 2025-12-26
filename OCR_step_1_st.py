@@ -3,6 +3,14 @@ import shutil
 import fitz
 import numpy as np
 import cv2
+import streamlit as st
+from paddleocr import PaddleOCR
+
+@st.cache_resource
+def load_ocr_model():
+    # use_angle_cls=False 可以顯著減少記憶體佔用
+    # use_gpu=False 在 Streamlit Cloud 是必須的
+    return PaddleOCR(use_full_dict=True, lang='ch', use_gpu=False, use_angle_cls=False)
 
 def parse_ocr_result(result):
 

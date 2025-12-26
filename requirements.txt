@@ -1,10 +1,10 @@
-streamlit
+streamlit>=1.30.0
 pandas
 pymupdf
-numpy==2.3.5
+numpy<2.0.0
 opencv-python-headless==4.10.0.84
 pillow
-paddleocr>=2.8.0
-paddlepaddle==3.2.2
+paddleocr==2.7.3
+paddlepaddle==2.6.1
 openai
 xlsxwriter
