@@ -47,7 +47,8 @@ def process_file_ocr(ocr_model, uploaded_file):
             if pix.n == 4:
                 img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
 
-            result = ocr_model.ocr(img, cls=True)
+            result = ocr_model.ocr(img)
+            #result = ocr_model.ocr(img, cls=True)
             all_text.append(parse_ocr_result(result))
 
         return "\n".join(all_text)
@@ -61,5 +62,6 @@ def process_file_ocr(ocr_model, uploaded_file):
         if img is None:
             return ""
 
-        result = ocr_model.ocr(img, cls=True)
+        result = ocr_model.ocr(img)
+        #result = ocr_model.ocr(img, cls=True)
         return parse_ocr_result(result)
