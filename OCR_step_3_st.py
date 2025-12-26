@@ -35,7 +35,7 @@ def main():
         st.session_state['current_step'] = 1
 
     st.sidebar.title("⚙️ 設定")
-    api_key = st.secrets.get["OPENAI_API_KEY"]
+    api_key = st.secrets.get("OPENAI_API_KEY")
     
     st.title("🧾 收據辨識一條龍系統")
     #st.info("上傳收據 -> OCR 辨識 -> AI 格式化 -> 手動校對 -> 存入 Excel")
