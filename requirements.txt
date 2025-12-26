@@ -2,7 +2,7 @@ streamlit
 pandas
 pymupdf
 numpy
-opencv-python-headless
+opencv-python-headless==4.9.0.80
 pillow
 paddleocr
 paddlepaddle
