@@ -24,7 +24,14 @@ st.set_page_config(page_title="收據自動化辨識系統", layout="wide")
 @st.cache_resource
 def load_ocr_model():
     #PaddleOCR(use_angle_cls=True, lang='ch', show_log=False)
-    return PaddleOCR(lang='ch')
+    return PaddleOCR(
+        use_angle_cls=True, 
+        lang='ch', 
+        use_gpu=False,       # 雲端必須為 False
+        enable_mkldnn=False, # 關鍵：關閉 MKLDNN 加速，解決 RuntimeError
+        cpu_threads=1,       # 限制線程數，防止內存爆掉
+        show_log=False       # 減少輸出日誌
+    )
 
 # --- 增加一個重置函數 (放在 main 外面或裡面皆可) ---
 def reset_session_state():
