@@ -34,7 +34,7 @@ def main():
         st.session_state['current_step'] = 1
 
     st.sidebar.title("⚙️ 設定")
-    api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+    api_key = st.secrets["OPENAI_API_KEY"]
     
     st.title("🧾 收據辨識一條龍系統")
     #st.info("上傳收據 -> OCR 辨識 -> AI 格式化 -> 手動校對 -> 存入 Excel")
@@ -54,9 +54,6 @@ def main():
         uploaded_files = st.file_uploader("選擇收據檔案 (支持 JPG, PNG, PDF)", type=['jpg', 'jpeg', 'png', 'pdf'], accept_multiple_files=True)
 
         if uploaded_files:
-            if not api_key:
-                st.warning("⚠️ 請先在左側設定中輸入 OpenAI API Key 才能開始處理。")
-            
             if st.button("🚀 開始批次處理") and api_key:
                 ocr_model = load_ocr_model()
                 all_extracted_data = []

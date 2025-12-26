@@ -1,9 +1,11 @@
-def raw_txt_to_json(txt_content, api_key):
+def raw_txt_to_json(txt_content):
     from openai import OpenAI
     import re
     import json
+    import streamlit as st
 
 
+    api_key=st.secrets["OPENAI_API_KEY"]
     client = OpenAI(api_key=api_key)
     category_and_subcat = [{"category": "Food and Beverages", "sub_category" :['Beverages','Rice','Noodle and Pasta', 'Oil','Baking and Dessert Needs','Canned', 
                                                                                'Preserved and Dried Food', 'Condiment, Sauce and Soup','Snack and Dessert','Chilled or Frozen Food',
