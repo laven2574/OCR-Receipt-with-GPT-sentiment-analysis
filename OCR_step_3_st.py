@@ -55,7 +55,7 @@ def main():
         uploaded_files = st.file_uploader("選擇收據檔案 (支持 JPG, PNG, PDF)", type=['jpg', 'jpeg', 'png', 'pdf'], accept_multiple_files=True)
 
         if uploaded_files:
-            if st.button("🚀 開始批次處理") and api_key:
+            if st.button("🚀 開始批次處理"):
                 ocr_model = load_ocr_model()
                 all_extracted_data = []
                 
@@ -70,7 +70,7 @@ def main():
                     
                     # 2. AI 轉換
                     try:
-                        json_data = raw_txt_to_json(txt, api_key)
+                        json_data = raw_txt_to_json(txt)
                         if json_data: # 確保 AI 有回傳內容
                             for item in json_data:
                                 item['source_file'] = file.name
