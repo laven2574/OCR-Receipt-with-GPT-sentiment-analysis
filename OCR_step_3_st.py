@@ -26,7 +26,10 @@ def load_ocr_model():
     #PaddleOCR(use_angle_cls=True, lang='ch', show_log=False)
     return PaddleOCR(lang='ch')
 
-
+# --- 增加一個重置函數 (放在 main 外面或裡面皆可) ---
+def reset_session_state():
+    """清除所有 Session State 並重新執行，相當於 F5 刷新"""
+    st.session_state.clear()
 
 # --- 3. Streamlit UI 介面 ---
 def main():
@@ -42,10 +45,12 @@ def main():
 
     # 顯示目前的進度條
     steps = ["1. 上傳與辨識", "2. 校對資料", "3. 匯出結果"]
-    current_progress = st.session_state['current_step']
+    current_progress = st.session_state.get('current_step', 1)
+    # 避免 index out of range 的保護
+    if current_progress > 3: current_progress = 3
     st.progress(current_progress / 3, text=f"目前步驟：{steps[current_progress-1]}")
 
-# ==========================================
+    # ==========================================
     # 步驟一：檔案上傳與 OCR 處理
     # ==========================================
     if st.session_state['current_step'] == 1:
@@ -82,6 +87,8 @@ def main():
                         st.error(f"❌ {file.name} 解析失敗。錯誤訊息: {e}")
                     
                     progress_bar.progress((idx + 1) / len(uploaded_files))
+
+                status_text.empty() # 清空狀態文字
                 
                 # --- 關鍵修正：判斷是否有成功抓取到任何資料 ---
                 if len(all_extracted_data) > 0:
@@ -102,6 +109,17 @@ def main():
                 else:
                     # 如果 all_extracted_data 是空的，就不會執行 st.rerun()，用家會留在第一步
                     st.error("❌ 所有檔案皆解析失敗，請檢查 API Key 是否正確，或圖片文字是否清晰。")
+                    # 使用 columns 來排版，讓按鈕靠左或置中看起來更整齊
+                    col1, col2 = st.columns([1, 4])
+                    with col1:
+                        # 這裡使用 on_click=reset_session_state
+                        # 這樣點擊後會先執行清除 session，然後自動 rerun，回到最原始狀態
+                        st.button(
+                            "🔄 重新上傳 / 重置", 
+                            type="primary", 
+                            on_click=reset_session_state,
+                            help="點擊此處將清除所有暫存資料並重新開始"
+                        )
 
     # ==========================================
     # 步驟二：手動修正 (Data Editor)
