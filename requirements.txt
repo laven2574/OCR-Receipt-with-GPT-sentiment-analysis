@@ -4,5 +4,5 @@ PyMuPDF==1.22.5
 opencv-python==4.8.1.78
 numpy==1.26.0
 pandas==2.1.1
-openai==1.30.0
+openai
 Pillow
