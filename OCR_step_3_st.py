@@ -181,12 +181,12 @@ def main():
             st.dataframe(final_df)
 
         target_excel = st.file_uploader(
-            "選擇舊 Excel（可選）", type=["xlsx"]
+            "選擇舊 Excel（可選）", type=["csv"]
         )
 
         if target_excel:
             try:
-                existing_df = pd.read_excel(target_excel)
+                existing_df = pd.read_csv(target_excel)
                 final_output = pd.concat(
                     [existing_df, final_df], ignore_index=True
                 )
@@ -198,22 +198,21 @@ def main():
             final_output = final_df
 
         output = BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            export_df = final_output.copy()
-            if "purchase_date" in export_df.columns:
-                export_df["purchase_date"] = pd.to_datetime(
-                    export_df["purchase_date"], errors="coerce"
-                ).dt.strftime("%Y-%m-%d")
-            export_df.to_excel(writer, index=False)
+        export_df = final_output.copy()
+        if "purchase_date" in export_df.columns:
+            export_df["purchase_date"] = pd.to_datetime(export_df["purchase_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+
+        export_df.to_csv(output, index=False, encoding="utf-8-sig")
+        output.seek(0)  # 移到檔案開頭
 
         col_dl, col_back, col_reset = st.columns([2, 1, 1])
 
         with col_dl:
             st.download_button(
-                "📥 下載 Excel",
+                "📥 下載 CSV",
                 data=output.getvalue(),
-                file_name="grocery_data_export.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                file_name="grocery_data_export.csv",
+                mime="text/csv",
                 use_container_width=True,
             )
 
