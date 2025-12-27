@@ -2,3 +2,6 @@ libgl1
 libglib2.0-0
 libgomp1
 fonts-wqy-zenhei
+tesseract-ocr
+libtesseract-dev
+tesseract-ocr-chi-sim
