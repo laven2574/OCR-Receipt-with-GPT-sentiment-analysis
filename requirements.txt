@@ -1,4 +1,4 @@
-streamlit==1.26.0
+streamlit
 pytesseract
 PyMuPDF==1.22.5
 opencv-python==4.8.1.78
