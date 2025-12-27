@@ -1,12 +1,7 @@
-streamlit>=1.30.0
-pandas
-pymupdf
-numpy<2.0.0
-opencv-python-headless==4.10.0.84
-pillow
-xlsxwriter
-openai
-
-paddleocr==2.7.3
-paddlepaddle==2.6.2
---find-links https://www.paddlepaddle.org.cn/whl/linux/mkl/noavx/stable.html
+streamlit==1.26.0
+pytesseract==0.3.12
+PyMuPDF==1.22.5
+opencv-python==4.8.1.78
+numpy==1.26.0
+pandas==2.1.1
+openai==1.30.0
