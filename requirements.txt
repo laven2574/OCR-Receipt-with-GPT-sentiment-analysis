@@ -1,5 +1,5 @@
 streamlit==1.26.0
-pytesseract==0.3.11
+pytesseract
 PyMuPDF==1.22.5
 opencv-python==4.8.1.78
 numpy==1.26.0
