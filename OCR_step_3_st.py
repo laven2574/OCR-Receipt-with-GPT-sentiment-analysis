@@ -181,7 +181,7 @@ def main():
             st.dataframe(final_df)
 
         target_excel = st.file_uploader(
-            "選擇舊 Excel（可選）", type=["csv"]
+            "選擇舊 Excel（可選）", type=["csv", "xlsx"]
         )
 
         if target_excel:
