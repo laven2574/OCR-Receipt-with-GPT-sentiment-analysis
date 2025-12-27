@@ -3,6 +3,7 @@ import pandas as pd
 from io import BytesIO
 from openai import OpenAI
 from PIL import Image
+from xlsxwriter import Workbook
 
 from OCR_step_1_st import process_file_ocr
 from OCR_step_2_st import raw_txt_to_json
