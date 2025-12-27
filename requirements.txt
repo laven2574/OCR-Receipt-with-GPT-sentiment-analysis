@@ -8,4 +8,5 @@ xlsxwriter
 openai
 
 paddleocr==2.7.3
-https://www.paddlepaddle.org.cn/whl/linux/mkl/noavx/stable/paddlepaddle-2.6.1-cp311-cp311-linux_x86_64.whl
+paddlepaddle==2.6.1
+--find-links https://www.paddlepaddle.org.cn/whl/linux/mkl/noavx/stable.html
