@@ -186,11 +186,18 @@ def main():
 
         if target_excel:
             try:
-                existing_df = pd.read_csv(target_excel)
-                final_output = pd.concat(
-                    [existing_df, final_df], ignore_index=True
-                )
-                st.info(f"Merged successfully. Total: {len(final_output)} records")
+                if target_excel.name.lower().endswith(".csv"):
+                    existing_df = pd.read_csv(target_excel)
+                elif target_excel.name.lower().endswith(".xlsx"):
+                    existing_df = pd.read_excel(target_excel)
+                else:
+                    st.error("Unsupported file format")
+                existing_df = None
+                
+                if existing_df is not None:
+                    final_output = pd.concat([existing_df, final_df], ignore_index=True)
+                    st.info(f"Merged successfully. Total: {len(final_output)} records")
+                    
             except Exception as e:
                 st.error(f"Failed to read existing file：{e}")
                 final_output = final_df
