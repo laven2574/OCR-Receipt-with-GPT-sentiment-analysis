@@ -177,6 +177,8 @@ def main():
             "final_edited_df", pd.DataFrame()
         )
 
+        final_output = final_df.copy()
+
         with st.expander("📊 Preview Final Data"):
             st.dataframe(final_df)
 
@@ -200,12 +202,13 @@ def main():
                     
             except Exception as e:
                 st.error(f"Failed to read existing file：{e}")
-                final_output = final_df
-        else:
-            final_output = final_df
+                final_output = final_df.copy()
+        #else:
+            #final_output = final_df
 
         output = BytesIO()
         export_df = final_output.copy()
+        
         if "purchase_date" in export_df.columns:
             export_df["purchase_date"] = pd.to_datetime(export_df["purchase_date"], errors="coerce").dt.strftime("%Y-%m-%d")
 
