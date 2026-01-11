@@ -206,25 +206,45 @@ def main():
         #else:
             #final_output = final_df
 
-        output = BytesIO()
+        output_csv = BytesIO()
+        output_xlsx = BytesIO()
+
         export_df = final_output.copy()
         
         if "purchase_date" in export_df.columns:
             export_df["purchase_date"] = pd.to_datetime(export_df["purchase_date"], errors="coerce").dt.strftime("%Y-%m-%d")
 
-        export_df.to_csv(output, index=False, encoding="utf-8-sig")
-        output.seek(0)  # 移到檔案開頭
+        # ---------- CSV ----------
+        export_df.to_csv(output_csv, index=False, encoding="utf-8-sig")
+        output_csv.seek(0)  # 移到檔案開頭
 
-        col_dl, col_back, col_reset = st.columns([2, 1, 1])
+        # ---------- XLSX ----------
+        with pd.ExcelWriter(output_xlsx, engine="openpyxl") as writer:
+            export_df.to_excel(writer, index=False,sheet_name="data")
 
-        with col_dl:
+        output_xlsx.seek(0)
+
+
+        col_csv, col_xlsx, col_back, col_reset = st.columns([2, 2, 1, 1])
+
+        with col_csv:
             st.download_button(
                 "📥 Download CSV",
-                data=output.getvalue(),
+                data=output_csv.getvalue(),
                 file_name="grocery_data_export.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width="stretch",
             )
+
+        with col_xlsx:
+            st.download_button(
+                "📥 Download XLSX",
+                data=output_xlsx.getvalue(),
+                file_name="grocery_data_export.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                width="stretch",
+            )
+
 
         with col_back:
             if st.button("⬅️ Back to Edit"):
