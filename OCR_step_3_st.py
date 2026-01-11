@@ -192,7 +192,7 @@ def main():
                     existing_df = pd.read_excel(target_excel)
                 else:
                     st.error("Unsupported file format")
-                existing_df = None
+                    existing_df = None
                 
                 if existing_df is not None:
                     final_output = pd.concat([existing_df, final_df], ignore_index=True)
