@@ -291,6 +291,50 @@ def main():
 
         if "temp_df" in st.session_state:
 
+            # ── 首次進入 Step 2 時，快照原始資料作為比對基準 ──────────
+            # 只在尚未快照時建立，避免每次 rerun 覆蓋掉基準
+            if "original_df" not in st.session_state:
+                st.session_state["original_df"] = st.session_state["temp_df"].copy()
+
+            original_df = st.session_state["original_df"]
+
+            # ── 橙色高亮輔助函式 ────────────────────────────────────────
+            def highlight_modified(row: pd.Series) -> list[str]:
+                """
+                逐行比對 edited_df 與 original_df：
+                - 若該行 index 在原始資料中不存在（新增行） → 橙色
+                - 若任何欄位數值與原始不同 → 橙色
+                - 若與原始完全一致 → 無填色
+                """
+                ORANGE = "background-color: #FF8C00; color: white;"
+                NONE   = ""
+
+                if row.name not in original_df.index:
+                    # 新增的行
+                    return [ORANGE] * len(row)
+
+                orig_row = original_df.loc[row.name]
+                for col in row.index:
+                    if col not in orig_row.index:
+                        continue
+                    curr_val = row[col]
+                    orig_val = orig_row[col]
+                    # NaN vs NaN 視為相同
+                    both_nan = (
+                        (isinstance(curr_val, float) and pd.isna(curr_val)) and
+                        (isinstance(orig_val, float) and pd.isna(orig_val))
+                    )
+                    if both_nan:
+                        continue
+                    try:
+                        if curr_val != orig_val:
+                            return [ORANGE] * len(row)
+                    except Exception:
+                        pass
+
+                return [NONE] * len(row)
+            # ────────────────────────────────────────────────────────────
+
             column_config = {
                 "purchase_date": st.column_config.DateColumn(
                     "購買日期", format="YYYY-MM-DD"
@@ -309,7 +353,6 @@ def main():
                 "quantity": st.column_config.NumberColumn(
                     "數量", format="%.2f"
                 ),
-                # 限制 category / sub_category 只能從合法選項中選取
                 "category": st.column_config.SelectboxColumn(
                     "Category",
                     options=ALL_CATEGORIES,
@@ -322,37 +365,47 @@ def main():
                 ),
             }
 
-            st.caption("💡 **總價** 為唯讀欄位，根據「單價 × 數量 − 折扣」自動計算，不可直接修改。")
+            st.caption(
+                "💡 **總價** 為唯讀欄位，根據「單價 × 數量 − 折扣」自動計算，不可直接修改。　"
+                "🟠 **橙色行** 表示已被修改，恢復原值後橙色消失。"
+            )
+
+            # ── 將 Styler 傳入 data_editor 以顯示橙色高亮 ──────────────
+            styled = (
+                st.session_state["temp_df"]
+                .style
+                .apply(highlight_modified, axis=1)
+            )
 
             edited_df = st.data_editor(
-                st.session_state["temp_df"],
+                styled,
                 num_rows="dynamic",
                 use_container_width=True,
                 column_config=column_config,
-                disabled=["total_price"],   # 鎖住 total_price 不可手動編輯
+                disabled=["total_price", "source_file"],  # 唯讀欄位
                 key="editor_step_2",
             )
 
-            # ── 公式驅動：重新計算 total_price ──────────────────────
-            # total_price = unit_price * quantity - price_discount
-            # 任何三個來源欄位有 NaN 時，對應的 total_price 也設為 NaN
+            # ── 公式驅動：重新計算 total_price ──────────────────────────
             for col in ["unit_price", "quantity", "price_discount"]:
                 if col not in edited_df.columns:
                     edited_df[col] = 0.0
 
             edited_df["total_price"] = (
-                pd.to_numeric(edited_df["unit_price"],    errors="coerce").fillna(0) *
-                pd.to_numeric(edited_df["quantity"],      errors="coerce").fillna(0) -
-                pd.to_numeric(edited_df["price_discount"],errors="coerce").fillna(0)
+                pd.to_numeric(edited_df["unit_price"],     errors="coerce").fillna(0) *
+                pd.to_numeric(edited_df["quantity"],       errors="coerce").fillna(0) -
+                pd.to_numeric(edited_df["price_discount"], errors="coerce").fillna(0)
             )
 
-            # 將重算後的結果存回 session_state，觸發畫面即時更新
+            # 存回 session_state，下一個 render cycle 會套用最新高亮
             st.session_state["temp_df"] = edited_df
-            # ────────────────────────────────────────────────────────
+            # ────────────────────────────────────────────────────────────
 
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("⬅️ Back to Previous Step"):
+                    # 返回 Step 1 時清除快照，以便重新上傳後重置基準
+                    st.session_state.pop("original_df", None)
                     st.session_state["current_step"] = 1
                     st.rerun()
             with col2:
