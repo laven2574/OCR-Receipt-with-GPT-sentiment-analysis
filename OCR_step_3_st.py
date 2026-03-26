@@ -299,33 +299,43 @@ def main():
             original_df = st.session_state["original_df"]
 
             # ── 橙色高亮輔助函式 ────────────────────────────────────────
+            # 排除唯讀及自動計算欄位，避免它們的變動誤觸發橙色高亮
+            EXCLUDE_FROM_COMPARE = {"total_price", "source_file"}
+
             def highlight_modified(row: pd.Series) -> list[str]:
                 """
-                逐行比對 edited_df 與 original_df：
-                - 若該行 index 在原始資料中不存在（新增行） → 橙色
-                - 若任何欄位數值與原始不同 → 橙色
-                - 若與原始完全一致 → 無填色
+                逐行比對 edited_df 與 original_df（僅比對用戶可編輯欄位）：
+                - 若該行 index 在原始資料中不存在（新增行） → 整行橙色
+                - 若任何可編輯欄位數值與原始不同 → 整行橙色
+                - 若與原始完全一致（包括恢復原值） → 無填色
                 """
                 ORANGE = "background-color: #FF8C00; color: white;"
                 NONE   = ""
 
                 if row.name not in original_df.index:
-                    # 新增的行
                     return [ORANGE] * len(row)
 
                 orig_row = original_df.loc[row.name]
                 for col in row.index:
+                    # 跳過唯讀/自動計算欄位，不納入比對
+                    if col in EXCLUDE_FROM_COMPARE:
+                        continue
                     if col not in orig_row.index:
                         continue
+
                     curr_val = row[col]
                     orig_val = orig_row[col]
+
                     # NaN vs NaN 視為相同
-                    both_nan = (
-                        (isinstance(curr_val, float) and pd.isna(curr_val)) and
-                        (isinstance(orig_val, float) and pd.isna(orig_val))
-                    )
-                    if both_nan:
+                    try:
+                        curr_nan = pd.isna(curr_val)
+                        orig_nan = pd.isna(orig_val)
+                    except Exception:
+                        curr_nan = orig_nan = False
+
+                    if curr_nan and orig_nan:
                         continue
+
                     try:
                         if curr_val != orig_val:
                             return [ORANGE] * len(row)
