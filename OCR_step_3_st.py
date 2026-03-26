@@ -328,8 +328,8 @@ def main():
 
                     # NaN vs NaN 視為相同
                     try:
-                        curr_nan = pd.isna(curr_val)
-                        orig_nan = pd.isna(orig_val)
+                        curr_nan = bool(pd.isna(curr_val))
+                        orig_nan = bool(pd.isna(orig_val))
                     except Exception:
                         curr_nan = orig_nan = False
 
