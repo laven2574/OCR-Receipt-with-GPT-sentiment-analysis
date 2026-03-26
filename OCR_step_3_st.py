@@ -290,6 +290,7 @@ def main():
         st.warning("Please verify the data accuracy. You can edit directly if needed.")
 
         if "temp_df" in st.session_state:
+
             column_config = {
                 "purchase_date": st.column_config.DateColumn(
                     "購買日期", format="YYYY-MM-DD"
@@ -298,7 +299,9 @@ def main():
                     "單價", format="$%.2f"
                 ),
                 "total_price": st.column_config.NumberColumn(
-                    "總價", format="$%.2f"
+                    "總價（自動計算）",
+                    format="$%.2f",
+                    help="唯讀欄位：單價 × 數量 − 折扣，任何數值變動後自動更新",
                 ),
                 "price_discount": st.column_config.NumberColumn(
                     "折扣", format="$%.2f"
@@ -319,13 +322,33 @@ def main():
                 ),
             }
 
+            st.caption("💡 **總價** 為唯讀欄位，根據「單價 × 數量 − 折扣」自動計算，不可直接修改。")
+
             edited_df = st.data_editor(
                 st.session_state["temp_df"],
                 num_rows="dynamic",
                 use_container_width=True,
                 column_config=column_config,
+                disabled=["total_price"],   # 鎖住 total_price 不可手動編輯
                 key="editor_step_2",
             )
+
+            # ── 公式驅動：重新計算 total_price ──────────────────────
+            # total_price = unit_price * quantity - price_discount
+            # 任何三個來源欄位有 NaN 時，對應的 total_price 也設為 NaN
+            for col in ["unit_price", "quantity", "price_discount"]:
+                if col not in edited_df.columns:
+                    edited_df[col] = 0.0
+
+            edited_df["total_price"] = (
+                pd.to_numeric(edited_df["unit_price"],    errors="coerce").fillna(0) *
+                pd.to_numeric(edited_df["quantity"],      errors="coerce").fillna(0) -
+                pd.to_numeric(edited_df["price_discount"],errors="coerce").fillna(0)
+            )
+
+            # 將重算後的結果存回 session_state，觸發畫面即時更新
+            st.session_state["temp_df"] = edited_df
+            # ────────────────────────────────────────────────────────
 
             col1, col2 = st.columns(2)
             with col1:
@@ -335,7 +358,6 @@ def main():
             with col2:
                 if st.button("✅ Confirm & Proceed to Export"):
                     st.session_state["final_edited_df"] = edited_df
-                    st.session_state["temp_df"] = edited_df
                     st.session_state["current_step"] = 3
                     st.rerun()
 
